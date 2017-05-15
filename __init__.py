@@ -20,19 +20,8 @@ config = [{
                     'type': 'enabler',
                     'default': False,
                 },
-                {
-                    'name': 'username',
-                    'default': '',
-                    'description': 'Enter your site username.',
-                },
-                {
-                    'name': 'password',
-                    'default': '',
-                    'type': 'password',
-                    'description': 'Enter your site password',
-                },
-                {
-                    'name': 'seed_ratio',
+		{                    
+		    'name': 'seed_ratio',
                     'label': 'Seed ratio',
                     'type': 'float',
                     'default': 1,

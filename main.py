@@ -26,7 +26,6 @@ class TNTVillage(TorrentProvider, MovieProvider):
 	def _searchOnTitle(self, title, movie, quality, results):
 		c_key = 'it_title.%s' % movie['identifiers']['imdb']
 		it_title = self.getCache(c_key)
-		log.info(it_title)
 		if not it_title:
 			if len(self.conf('api_key')) > 0:
 				try:
