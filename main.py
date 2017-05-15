@@ -24,23 +24,31 @@ class TNTVillage(TorrentProvider, MovieProvider):
 	http_time_between_calls = 1
 	
 	def _searchOnTitle(self, title, movie, quality, results):
-		if len(self.conf('api_key')) > 0:
-			try:
-				params = dict(
-					api_key=self.conf('api_key'),
-					language='it_IT'
-				)
-				url = "https://api.themoviedb.org/3/movie/%s" % movie['info']['tmdb_id']
-				resp = requests.get(url=url, params=params)
-				data = json.loads(resp.text)
-				it_title = data['title']
-			except:
-				log.error('Unable to find italian title')
+		c_key = 'it_title.%s' % movie['identifiers']['imdb']
+		it_title = self.getCache(c_key)
+		log.info(it_title)
+		if not it_title:
+			if len(self.conf('api_key')) > 0:
+				try:
+					params = dict(
+						api_key=self.conf('api_key'),
+						language='it_IT'
+					)
+					url = "https://api.themoviedb.org/3/movie/%s" % movie['info']['tmdb_id']
+					resp = requests.get(url=url, params=params)
+					data = json.loads(resp.text)
+					it_title = data['title']
+					self.setCache(c_key, it_title, timeout=25920000)
+				except:
+					log.error('Unable to find italian title')
+					it_title = title
+			else:
 				it_title = title
 		row = []
 		it_title = "%s %s" % (it_title, movie['info']['year'])
-		log.info("Searching on TNTVillage with query %s" % it_title)
-		payload = {'cat': 0, 'page': 1, 'srcrel': it_title}
+		simp_title = simplifyString(it_title)
+		log.info("Searching on TNTVillage with query %s" % simp_title)
+		payload = {'cat': 0, 'page': 1, 'srcrel': simp_title}
 		data = requests.post(self.urls['search'], data=payload)
 		soup = BeautifulSoup(data.text)
 		row += soup.findAll('tr')
