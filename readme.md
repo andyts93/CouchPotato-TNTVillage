@@ -14,4 +14,5 @@ sudo service couchpotato restart
 
 Il plugin ha una fuzione di traduzione dei titoli dei film dal titolo originale all'italiano tramite le api di TMDB. Per far sì che venga tentata la traduzione prima della ricerca su TNTVillage aggiungere nelle impostazioni del searcher la propria [api key di tmdb](https://www.themoviedb.org/faq/api)
 
-
+## RINGRAZIAMENTI
+Grazie a [autoscatto](https://github.com/autoscatto) per aver creato il primo provider per TNTVillage da cui ho preso spunto
