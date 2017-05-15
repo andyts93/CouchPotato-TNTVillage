@@ -33,11 +33,14 @@ class TNTVillage(TorrentProvider, MovieProvider):
 				url = "https://api.themoviedb.org/3/movie/%s" % movie['info']['tmdb_id']
 				resp = requests.get(url=url, params=params)
 				data = json.loads(resp.text)
-				title = data['title']
+				it_title = data['title']
 			except:
 				log.error('Unable to find italian title')
+				it_title = title
 		row = []
-		payload = {'cat': 0, 'page': 1, 'srcrel': title}
+		it_title = "%s %s" % (it_title, movie['info']['year'])
+		log.info("Searching on TNTVillage with query %s" % it_title)
+		payload = {'cat': 0, 'page': 1, 'srcrel': it_title}
 		data = requests.post(self.urls['search'], data=payload)
 		soup = BeautifulSoup(data.text)
 		row += soup.findAll('tr')
@@ -48,13 +51,13 @@ class TNTVillage(TorrentProvider, MovieProvider):
 			return
 		if row:
 			try:
-				self.parseResults(results, row, movie['info']['year'], quality, title)
+				self.parseResults(results, row, movie['info']['year'], quality, title, it_title)
 			except:
 				log.error('Failed parsing TNTVillage')
 		else:
 			log.info('No search results found')
 	
-	def standardize_title(self, name, title, year, quality, desc):
+	def standardize_title(self, name, it_title, title, year, quality, desc):
 		s_y = re.findall(r'(\d{4})', name)
 		s_yo = "%d" % year
 		q_label = ""
@@ -99,7 +102,7 @@ class TNTVillage(TorrentProvider, MovieProvider):
 		self.desc = g
 		return age, size
 
-	def parseResults(self, results, entries, year, quality, title):
+	def parseResults(self, results, entries, year, quality, title, it_title):
 		new = {}
 		for result in entries:
 			tds = result.findAll('td')
@@ -109,7 +112,7 @@ class TNTVillage(TorrentProvider, MovieProvider):
 				new['url'] = tds[0].a['href']
 				new['detail_url'] = tds[6].a['href']
 				new['id'] = tds[6].a['href'].split('showtopic=')[1]
-				new['name'] = self.standardize_title(tds[6].a.text, title, year, quality, self.desc)
+				new['name'] = self.standardize_title(tds[6].a.text, it_title, title, year, quality, self.desc)
 				new['seeders'] = tryInt(tds[4].text)
 				new['leechers'] = tryInt(tds[3].text)
 				new['score'] = self.conf('extra_score') + 20
